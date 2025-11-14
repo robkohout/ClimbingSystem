@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "ClimbingSystem.h"
+#include "DebugHelper.h"
 
 AClimbingSystemCharacter::AClimbingSystemCharacter()
 {
@@ -70,6 +71,8 @@ void AClimbingSystemCharacter::SetupPlayerInputComponent(UInputComponent* Player
 	{
 		UE_LOG(LogClimbingSystem, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
+	
+	Debug::Print(TEXT("Debug Working"));
 }
 
 void AClimbingSystemCharacter::Move(const FInputActionValue& Value)
