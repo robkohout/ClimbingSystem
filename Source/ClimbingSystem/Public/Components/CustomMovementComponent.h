@@ -22,6 +22,8 @@ public:
 	void ToggleClimbing(bool bEnableClimb);
 	bool IsClimbing() const;
 	bool CanStartClimbing();
+
+	FORCEINLINE FVector GetClimbableSurfaceNormal() const { return CurrentClimbableSurfaceNormal; }
 	
 protected:
 	
