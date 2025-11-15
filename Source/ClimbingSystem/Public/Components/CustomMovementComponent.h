@@ -29,6 +29,7 @@ protected:
 	
 #pragma region Overridden Functions
 	
+	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override; 
 	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
@@ -57,6 +58,10 @@ private:
 	bool CheckShouldStopClimbing();
 	FQuat GetClimbRotation(float DeltaTime);
 	void SnapMovementToClimbableSurfaces(float DeltaTime);
+	void PlayClimbMontage(UAnimMontage* MontageToPlay);
+	
+	UFUNCTION()
+	void OnClimbMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 	
 #pragma endregion
 	
@@ -65,6 +70,9 @@ private:
 	TArray<FHitResult> ClimbableSurfacesTracedResults;
 	FVector CurrentClimbableSurfaceLocation;
 	FVector CurrentClimbableSurfaceNormal;
+	
+	UPROPERTY()
+	UAnimInstance* OwningPlayerAnimInstance;
 	
 #pragma endregion
 	
@@ -87,6 +95,9 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Character Movement: Climbing", meta=(AllowPrivateAccess="true"))
 	float MaxBreakClimbAcceleration = 300.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Character Movement: Climbing", meta=(AllowPrivateAccess="true"))
+	UAnimMontage* IdleToClimbMontage;
 	
 #pragma endregion
 };
