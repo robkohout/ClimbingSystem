@@ -2,7 +2,6 @@
 
 
 #include "Public/Components/CustomMovementComponent.h"
-#include "DebugHelper.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -331,7 +330,10 @@ void UCustomMovementComponent::PlayClimbMontage(UAnimMontage* MontageToPlay)
 
 void UCustomMovementComponent::OnClimbMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	Debug::Print(TEXT("Climb Montage Ended"));
+	if (Montage == IdleToClimbMontage)
+	{
+		StartClimbing();
+	}
 }
 
 #pragma endregion
