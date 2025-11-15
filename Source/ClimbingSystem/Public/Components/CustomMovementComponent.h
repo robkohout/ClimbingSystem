@@ -70,16 +70,16 @@ private:
 	
 #pragma region ClimbBPVariables
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Character Movement: Climbing", meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing", meta=(AllowPrivateAccess="true"))
 	TArray<TEnumAsByte<EObjectTypeQuery>> ClimbableSurfaceTraceTypes;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Character Movement: Climbing", meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing", meta=(AllowPrivateAccess="true"))
 	float ClimbCapsuleTraceRadius = 50.f;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Character Movement: Climbing", meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing", meta=(AllowPrivateAccess="true"))
 	float ClimbCapsuleTraceHalfHeight = 72.f;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Character Movement: Climbing", meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Movement: Climbing", meta=(AllowPrivateAccess="true"))
 	float MaxBreakClimbDeceleration = 400.f;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Character Movement: Climbing", meta=(AllowPrivateAccess="true"))
