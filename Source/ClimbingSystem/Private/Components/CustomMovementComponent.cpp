@@ -7,6 +7,8 @@
 #include "GameFramework/Character.h"
 #include "Kismet/KismetSystemLibrary.h"
 
+#pragma region Overridden Functions
+
 void UCustomMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -33,6 +35,18 @@ void UCustomMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovem
 	
 	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
 }
+
+void UCustomMovementComponent::PhysCustom(float deltaTime, int32 Iterations)
+{
+	if (IsClimbing())
+	{
+		PhysClimb(deltaTime, Iterations);
+	}
+	
+	Super::PhysCustom(deltaTime, Iterations);
+}
+
+#pragma endregion
 
 #pragma region ClimbTraces
 
@@ -139,6 +153,49 @@ void UCustomMovementComponent::StartClimbing()
 void UCustomMovementComponent::StopClimbing()
 {
 	SetMovementMode(MOVE_Falling);
+}
+
+void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
+{
+	if (deltaTime < MIN_TICK_TIME)
+	{
+		return;
+	}
+
+	// Process all the climbable surfaces info
+	
+	// Check if we should stop climbing
+	
+	RestorePreAdditiveRootMotionVelocity();
+
+	if( !HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity() )
+	{
+		// Define the max climb speed and acceleration
+		CalcVelocity(deltaTime, 0.f, true, MaxBreakClimbDeceleration);
+	}
+
+	ApplyRootMotionToVelocity(deltaTime);
+
+	FVector OldLocation = UpdatedComponent->GetComponentLocation();
+	const FVector Adjusted = Velocity * deltaTime;
+	FHitResult Hit(1.f);
+	
+	// Handle climb rotation
+	SafeMoveUpdatedComponent(Adjusted, UpdatedComponent->GetComponentQuat(), true, Hit);
+
+	if (Hit.Time < 1.f)
+	{
+		//adjust and try again
+		HandleImpact(Hit, deltaTime, Adjusted);
+		SlideAlongSurface(Adjusted, (1.f - Hit.Time), Hit.Normal, Hit, true);
+	}
+
+	if(!HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity() )
+	{
+		Velocity = (UpdatedComponent->GetComponentLocation() - OldLocation) / deltaTime;
+	}
+	
+	// Snap movement to climbable surfaces
 }
 
 bool UCustomMovementComponent::IsClimbing() const

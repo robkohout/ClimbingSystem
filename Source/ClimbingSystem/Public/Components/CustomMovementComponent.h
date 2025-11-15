@@ -24,8 +24,14 @@ public:
 	bool CanStartClimbing();
 	
 protected:
+	
+#pragma region Overridden Functions
+	
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override; 
+	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
+	
+#pragma endregion
 	
 private:
 	
@@ -42,6 +48,7 @@ private:
 	FHitResult TraceFromEyeHeight(float TraceDistance, float TraceStartOffset = 0.f);
 	void StartClimbing();
 	void StopClimbing();
+	void PhysClimb(float deltaTime, int32 Iterations);
 	
 #pragma endregion
 	
@@ -61,6 +68,9 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Character Movement: Climbing", meta=(AllowPrivateAccess="true"))
 	float ClimbCapsuleTraceHalfHeight = 72.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Character Movement: Climbing", meta=(AllowPrivateAccess="true"))
+	float MaxBreakClimbDeceleration = 400.f;
 	
 #pragma endregion
 };
