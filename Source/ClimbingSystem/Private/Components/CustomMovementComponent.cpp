@@ -2,6 +2,7 @@
 
 
 #include "Public/Components/CustomMovementComponent.h"
+#include "DebugHelper.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -235,6 +236,15 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 	
 	// Snap movement to climbable surfaces
 	SnapMovementToClimbableSurfaces(deltaTime);
+	
+	if (CheckHasReachedLedge())
+	{
+		Debug::Print(TEXT("Ledge Reached"), FColor::Green, 1);
+	}
+	else
+	{
+		Debug::Print(TEXT("Ledge Not Reached"), FColor::Red, 1);
+	}
 }
 
 void UCustomMovementComponent::ProcessClimbableSurfaceInfo()
@@ -274,7 +284,7 @@ bool UCustomMovementComponent::CheckHasReachedFloor()
 	const FVector Start = UpdatedComponent->GetComponentLocation() + StartOffset;
 	const FVector End = Start + DownVector;
 
-	TArray<FHitResult> PossibleFloorHits = DoCapsuleTraceMultiByObject(Start, End, true);
+	TArray<FHitResult> PossibleFloorHits = DoCapsuleTraceMultiByObject(Start, End);
 
 	if(PossibleFloorHits.IsEmpty()) return false;
 
@@ -320,6 +330,28 @@ void UCustomMovementComponent::SnapMovementToClimbableSurfaces(float DeltaTime)
 		true);
 }
 
+bool UCustomMovementComponent::CheckHasReachedLedge()
+{
+	FHitResult LedgeHitResult = TraceFromEyeHeight(100.f, 50.f);
+	
+	if (!LedgeHitResult.bBlockingHit)
+	{
+		const FVector WalkableSurfaceTraceStart = LedgeHitResult.TraceEnd;
+		const FVector DownVector = -UpdatedComponent->GetUpVector();
+		const FVector WalkableSurfaceTraceEnd = WalkableSurfaceTraceStart + DownVector * 100.f;
+		
+		FHitResult WalkableSurfaceHitResult = 
+			DoLineTraceSingleByObject(WalkableSurfaceTraceStart, WalkableSurfaceTraceEnd, true);
+		
+		if (WalkableSurfaceHitResult.bBlockingHit && GetUnrotatedClimbVelocity().Z > 10.f)
+		{
+			return true;
+		}
+	}
+	
+	return false;
+}
+
 bool UCustomMovementComponent::IsClimbing() const
 {
 	return MovementMode == MOVE_Custom && CustomMovementMode == ECustomMovementMode::MOVE_Climb;
@@ -344,7 +376,7 @@ FHitResult UCustomMovementComponent::TraceFromEyeHeight(float TraceDistance, flo
 	const FVector Start = ComponentLocation + EyeHeightOffset;
 	const FVector End = Start + UpdatedComponent->GetForwardVector() * TraceDistance;
 	
-	return DoLineTraceSingleByObject(Start, End);
+	return DoLineTraceSingleByObject(Start, End, true);
 }
 
 void UCustomMovementComponent::PlayClimbMontage(UAnimMontage* MontageToPlay)
