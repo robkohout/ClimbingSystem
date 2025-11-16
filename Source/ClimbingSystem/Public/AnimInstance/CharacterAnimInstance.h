@@ -26,6 +26,7 @@ private:
 	void GetShouldMove();
 	void GetIsFalling();
 	void GetIsClimbing();
+	void GetClimbVelocity();
 
 	UPROPERTY()
 	AClimbingSystemCharacter* ClimbingSystemCharacter;
@@ -47,4 +48,7 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Reference, meta = (AllowPrivateAccess = "true"))
 	bool bIsClimbing;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Reference, meta = (AllowPrivateAccess = "true"))
+	FVector ClimbVelocity;
 };
