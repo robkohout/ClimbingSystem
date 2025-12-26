@@ -63,6 +63,8 @@ private:
 	FQuat GetClimbRotation(float DeltaTime);
 	void SnapMovementToClimbableSurfaces(float DeltaTime);
 	bool CheckHasReachedLedge();
+	void TryStartVaulting();
+	bool CanStartVaulting(FVector& OutVaultStartPosition, FVector& OutVaultLandPosition);
 	void PlayClimbMontage(UAnimMontage* MontageToPlay);
 	
 	UFUNCTION()

@@ -178,8 +178,13 @@ void UCustomMovementComponent::ToggleClimbing(bool bEnableClimb)
 		{
 			PlayClimbMontage(ClimbDownLedgeMontage);	
 		}
+		else
+		{
+			TryStartVaulting();
+		}
 	}
-	else
+	
+	if (!bEnableClimb)
 	{
 		// Stop climbing
 		StopClimbing();
@@ -385,6 +390,61 @@ bool UCustomMovementComponent::CheckHasReachedLedge()
 		{
 			return true;
 		}
+	}
+	
+	return false;
+}
+
+void UCustomMovementComponent::TryStartVaulting()
+{
+	FVector VaultStartPosition;
+	FVector VaultLandPosition;
+	
+	if (CanStartVaulting(VaultStartPosition, VaultLandPosition))
+	{
+		// Start Vaulting
+		Debug::Print(TEXT("start position: ") + VaultStartPosition.ToCompactString());
+		Debug::Print(TEXT("land position: ") + VaultLandPosition.ToCompactString());
+	}
+	else
+	{
+		Debug::Print(TEXT("unable to vault"));
+	}
+}
+
+bool UCustomMovementComponent::CanStartVaulting(FVector& OutVaultStartPosition, FVector& OutVaultLandPosition)
+{
+	if (IsFalling()) return false;
+	
+	OutVaultStartPosition = FVector::ZeroVector;
+	OutVaultLandPosition = FVector::ZeroVector;
+	
+	const FVector ComponentLocation = UpdatedComponent->GetComponentLocation();
+	const FVector ComponentForward = UpdatedComponent->GetForwardVector();
+	const FVector UpVector = UpdatedComponent->GetUpVector(); 
+	const FVector DownVector = -UpdatedComponent->GetUpVector();
+	
+	for (int32 i = 0; i < 5; i++)
+	{
+		const FVector Start = ComponentLocation + UpVector * 100.f + ComponentForward * 100.f * (i+1);
+		const FVector End = Start + DownVector * 100.f * (i+1);
+		
+		FHitResult VaultTraceHit = DoLineTraceSingleByObject(Start, End, true, true);
+		
+		if (i == 0 && VaultTraceHit.bBlockingHit)
+		{
+			OutVaultStartPosition = VaultTraceHit.ImpactPoint;
+		}
+		
+		if (i == 4 && VaultTraceHit.bBlockingHit)
+		{
+			OutVaultLandPosition = VaultTraceHit.ImpactPoint;
+		}
+	}
+	
+	if (OutVaultStartPosition != FVector::ZeroVector && OutVaultLandPosition != FVector::ZeroVector)
+	{
+		return true;
 	}
 	
 	return false;
