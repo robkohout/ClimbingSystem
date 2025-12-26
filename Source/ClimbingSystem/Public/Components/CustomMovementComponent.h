@@ -6,6 +6,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CustomMovementComponent.generated.h"
 
+class AClimbingSystemCharacter;
+
 UENUM(BlueprintType)
 namespace ECustomMovementMode {
 	enum Type {
@@ -70,6 +72,8 @@ private:
 	UFUNCTION()
 	void OnClimbMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 	
+	void SetMotionWarpTarget(const FName& InWarpTargetName, const FVector& InTargetPosition);
+	
 #pragma endregion
 	
 #pragma region ClimbCoreVariables
@@ -80,6 +84,9 @@ private:
 	
 	UPROPERTY()
 	UAnimInstance* OwningPlayerAnimInstance;
+	
+	UPROPERTY()
+	AClimbingSystemCharacter* OwningPlayerCharacter;
 	
 #pragma endregion
 	
@@ -117,6 +124,9 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Character Movement: Climbing", meta=(AllowPrivateAccess="true"))
 	UAnimMontage* ClimbDownLedgeMontage;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Character Movement: Climbing", meta=(AllowPrivateAccess="true"))
+	UAnimMontage* VaultMontage;
 	
 #pragma endregion
 };

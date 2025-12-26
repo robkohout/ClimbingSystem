@@ -2,7 +2,9 @@
 
 
 #include "Public/Components/CustomMovementComponent.h"
+#include "ClimbingSystemCharacter.h"
 #include "DebugHelper.h"
+#include "MotionWarpingComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -21,6 +23,8 @@ void UCustomMovementComponent::BeginPlay()
 		OwningPlayerAnimInstance->OnMontageEnded.AddDynamic(this, &ThisClass::OnClimbMontageEnded);
 		OwningPlayerAnimInstance->OnMontageBlendingOut.AddDynamic(this, &ThisClass::OnClimbMontageEnded);
 	}
+	
+	OwningPlayerCharacter = Cast<AClimbingSystemCharacter>(CharacterOwner);
 }
 
 void UCustomMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -402,13 +406,11 @@ void UCustomMovementComponent::TryStartVaulting()
 	
 	if (CanStartVaulting(VaultStartPosition, VaultLandPosition))
 	{
-		// Start Vaulting
-		Debug::Print(TEXT("start position: ") + VaultStartPosition.ToCompactString());
-		Debug::Print(TEXT("land position: ") + VaultLandPosition.ToCompactString());
-	}
-	else
-	{
-		Debug::Print(TEXT("unable to vault"));
+		SetMotionWarpTarget(FName("VaultStartPoint"), VaultStartPosition);
+		SetMotionWarpTarget(FName("VaultLandPoint"), VaultLandPosition);
+		
+		StartClimbing();
+		PlayClimbMontage(VaultMontage);
 	}
 }
 
@@ -424,19 +426,19 @@ bool UCustomMovementComponent::CanStartVaulting(FVector& OutVaultStartPosition, 
 	const FVector UpVector = UpdatedComponent->GetUpVector(); 
 	const FVector DownVector = -UpdatedComponent->GetUpVector();
 	
-	for (int32 i = 0; i < 5; i++)
+	for (int32 i = 0; i < 4; i++)
 	{
 		const FVector Start = ComponentLocation + UpVector * 100.f + ComponentForward * 100.f * (i+1);
 		const FVector End = Start + DownVector * 100.f * (i+1);
 		
-		FHitResult VaultTraceHit = DoLineTraceSingleByObject(Start, End, true, true);
+		FHitResult VaultTraceHit = DoLineTraceSingleByObject(Start, End);
 		
 		if (i == 0 && VaultTraceHit.bBlockingHit)
 		{
 			OutVaultStartPosition = VaultTraceHit.ImpactPoint;
 		}
 		
-		if (i == 4 && VaultTraceHit.bBlockingHit)
+		if (i == 3 && VaultTraceHit.bBlockingHit)
 		{
 			OutVaultLandPosition = VaultTraceHit.ImpactPoint;
 		}
@@ -494,10 +496,17 @@ void UCustomMovementComponent::OnClimbMontageEnded(UAnimMontage* Montage, bool b
 		StopMovementImmediately();
 	}
 	
-	if (Montage == ClimbToTopMontage)
+	if (Montage == ClimbToTopMontage || Montage == VaultMontage)
 	{
 		SetMovementMode(MOVE_Walking);
 	}
+}
+
+void UCustomMovementComponent::SetMotionWarpTarget(const FName& InWarpTargetName, const FVector& InTargetPosition)
+{
+	if (!OwningPlayerCharacter) return;
+	
+	OwningPlayerCharacter->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(InWarpTargetName, InTargetPosition);
 }
 
 FVector UCustomMovementComponent::GetUnrotatedClimbVelocity() const
