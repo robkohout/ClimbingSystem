@@ -2,6 +2,7 @@
 
 #include "ClimbingSystemCharacter.h"
 #include "ClimbingSystem.h"
+#include "DebugHelper.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
@@ -53,11 +54,30 @@ AClimbingSystemCharacter::AClimbingSystemCharacter(const FObjectInitializer& Obj
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 }
 
+void AClimbingSystemCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+	
+	if (CustomMovementComponent)
+	{
+		CustomMovementComponent->OnEnterClimbStateDelegate.BindUObject(this, &ThisClass::OnPlayerEnterClimbState);
+		CustomMovementComponent->OnExitClimbStateDelegate.BindUObject(this, &ThisClass::OnPlayerExitClimbState);
+	}
+}
+
 void AClimbingSystemCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) 
+	{
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
@@ -77,6 +97,8 @@ void AClimbingSystemCharacter::SetupPlayerInputComponent(UInputComponent* Player
 		UE_LOG(LogClimbingSystem, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
 }
+
+#pragma region InputCallback
 
 void AClimbingSystemCharacter::Move(const FInputActionValue& Value)
 {
@@ -159,3 +181,15 @@ void AClimbingSystemCharacter::OnClimbActionStarted(const FInputActionValue& Val
 		CustomMovementComponent->ToggleClimbing(false);
 	}
 }
+
+void AClimbingSystemCharacter::OnPlayerEnterClimbState()
+{
+	Debug::Print(TEXT("Entered climb state"));
+}
+
+void AClimbingSystemCharacter::OnPlayerExitClimbState()
+{
+	Debug::Print(TEXT("Exited climb state"));	
+}
+
+#pragma endregion

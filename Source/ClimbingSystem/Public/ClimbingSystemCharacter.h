@@ -7,6 +7,7 @@
 #include "Logging/LogMacros.h"
 #include "ClimbingSystemCharacter.generated.h"
 
+class UInputMappingContext;
 class UMotionWarpingComponent;
 class UCustomMovementComponent;
 class USpringArmComponent;
@@ -34,15 +35,27 @@ public:
 	FORCEINLINE UMotionWarpingComponent* GetMotionWarpingComponent() const { return MotionWarpingComponent; }
 	
 private:
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void BeginPlay();
+	
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	
+#pragma region InputCallback
 	
 	void Move(const FInputActionValue& Value);
 	void HandleGroundMovementInput(const FInputActionValue& Value);
 	void HandleClimbMovementInput(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	
 	void OnClimbActionStarted(const FInputActionValue& Value);
+
+#pragma endregion
 	
+#pragma region Input
+	
+	void OnPlayerEnterClimbState();
+	void OnPlayerExitClimbState();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputMappingContext* DefaultMappingContext;
 	
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* JumpAction;
@@ -58,7 +71,10 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* ClimbAction;
-		
+	
+#pragma endregion
+	
+#pragma region Components
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
@@ -71,5 +87,8 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Movement", meta = (AllowPrivateAccess = "true"))
 	UMotionWarpingComponent* MotionWarpingComponent;
+	
+#pragma endregion
+
 };
 

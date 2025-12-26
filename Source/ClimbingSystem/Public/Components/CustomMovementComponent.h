@@ -6,11 +6,16 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CustomMovementComponent.generated.h"
 
+DECLARE_DELEGATE(FOnEnterClimbState);
+DECLARE_DELEGATE(FOnExitClimbState);
+
 class AClimbingSystemCharacter;
 
 UENUM(BlueprintType)
-namespace ECustomMovementMode {
-	enum Type {
+namespace ECustomMovementMode 
+{
+	enum Type 
+	{
 		MOVE_Climb UMETA(DisplayName="Climb Mode"),
 	};
 }
@@ -26,6 +31,9 @@ public:
 
 	FORCEINLINE FVector GetClimbableSurfaceNormal() const { return CurrentClimbableSurfaceNormal; }
 	FVector GetUnrotatedClimbVelocity() const;
+	
+	FOnEnterClimbState OnEnterClimbStateDelegate;
+	FOnExitClimbState OnExitClimbStateDelegate;
 	
 protected:
 	
