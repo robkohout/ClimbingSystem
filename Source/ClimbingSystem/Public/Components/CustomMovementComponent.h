@@ -27,6 +27,7 @@ class CLIMBINGSYSTEM_API UCustomMovementComponent : public UCharacterMovementCom
 
 public:
 	void ToggleClimbing(bool bEnableClimb);
+	void RequestHopping();
 	bool IsClimbing() const;
 
 	FORCEINLINE FVector GetClimbableSurfaceNormal() const { return CurrentClimbableSurfaceNormal; }

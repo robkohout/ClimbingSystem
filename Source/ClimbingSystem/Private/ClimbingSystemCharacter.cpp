@@ -198,7 +198,10 @@ void AClimbingSystemCharacter::OnPlayerExitClimbState()
 
 void AClimbingSystemCharacter::OnClimbHopActionStarted(const FInputActionValue& Value)
 {
-	Debug::Print(TEXT("HoppingStarted"));	
+	if (CustomMovementComponent)
+	{
+		CustomMovementComponent->RequestHopping();
+	}
 }
 
 #pragma endregion
