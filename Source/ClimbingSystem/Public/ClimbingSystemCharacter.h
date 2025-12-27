@@ -45,6 +45,7 @@ private:
 	void HandleClimbMovementInput(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void OnClimbActionStarted(const FInputActionValue& Value);
+	void OnClimbHopActionStarted(const FInputActionValue& Value);
 
 #pragma endregion
 	
@@ -76,6 +77,9 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* ClimbAction;
+	
+	UPROPERTY(EditAnywhere, Category="Input")
+	UInputAction* ClimbHopAction;
 	
 #pragma endregion
 	

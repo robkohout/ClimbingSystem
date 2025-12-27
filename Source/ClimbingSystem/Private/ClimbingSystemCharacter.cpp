@@ -98,19 +98,17 @@ void AClimbingSystemCharacter::SetupPlayerInputComponent(UInputComponent* Player
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) 
 	{
-		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
-		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AClimbingSystemCharacter::HandleGroundMovementInput);
 		EnhancedInputComponent->BindAction(ClimbMoveAction, ETriggerEvent::Triggered, this, &AClimbingSystemCharacter::HandleClimbMovementInput);
 
-		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AClimbingSystemCharacter::Look);
 		
-		// Climbing
 		EnhancedInputComponent->BindAction(ClimbAction, ETriggerEvent::Started, this, &AClimbingSystemCharacter::OnClimbActionStarted);
+		
+		EnhancedInputComponent->BindAction(ClimbHopAction, ETriggerEvent::Started, this, &AClimbingSystemCharacter::OnClimbHopActionStarted);
 	}
 	else
 	{
@@ -191,15 +189,16 @@ void AClimbingSystemCharacter::OnClimbActionStarted(const FInputActionValue& Val
 void AClimbingSystemCharacter::OnPlayerEnterClimbState()
 {
 	AddInputMappingContext(ClimbMappingContext, 1);
-	
-	Debug::Print(TEXT("Entered climb state"));
 }
 
 void AClimbingSystemCharacter::OnPlayerExitClimbState()
 {
 	RemoveInputMappingContext(ClimbMappingContext);
-	
-	Debug::Print(TEXT("Exited climb state"));	
+}
+
+void AClimbingSystemCharacter::OnClimbHopActionStarted(const FInputActionValue& Value)
+{
+	Debug::Print(TEXT("HoppingStarted"));	
 }
 
 #pragma endregion
