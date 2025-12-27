@@ -35,13 +35,12 @@ public:
 	FORCEINLINE UMotionWarpingComponent* GetMotionWarpingComponent() const { return MotionWarpingComponent; }
 	
 private:
-	virtual void BeginPlay();
+	virtual void BeginPlay() override;
 	
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	
 #pragma region InputCallback
 	
-	void Move(const FInputActionValue& Value);
 	void HandleGroundMovementInput(const FInputActionValue& Value);
 	void HandleClimbMovementInput(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -54,20 +53,26 @@ private:
 	void OnPlayerEnterClimbState();
 	void OnPlayerExitClimbState();
 	
+	void AddInputMappingContext(UInputMappingContext* ContextToAdd, int32 InPriority);
+	void RemoveInputMappingContext(UInputMappingContext* ContextToRemove);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputMappingContext* ClimbMappingContext;
 	
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* JumpAction;
 
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MoveAction;
+	
+	UPROPERTY(EditAnywhere, Category="Input")
+	UInputAction* ClimbMoveAction;
 
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* LookAction;
-
-	UPROPERTY(EditAnywhere, Category="Input")
-	UInputAction* MouseLookAction;
 	
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* ClimbAction;
