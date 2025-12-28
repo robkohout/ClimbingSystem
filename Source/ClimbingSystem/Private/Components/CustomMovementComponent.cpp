@@ -3,7 +3,6 @@
 
 #include "Public/Components/CustomMovementComponent.h"
 #include "ClimbingSystemCharacter.h"
-#include "DebugHelper.h"
 #include "MotionWarpingComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
@@ -468,12 +467,38 @@ void UCustomMovementComponent::HandleHopUp()
 
 bool UCustomMovementComponent::CheckCanHopUp(FVector& OutHopUpTargetPosition)
 {	
-	FHitResult HopUpHit = TraceFromEyeHeight(100.f,-30.f,true,true);
-	FHitResult SafetyLedgeHit = TraceFromEyeHeight(100.f,150.f,true,true);
+	FHitResult HopUpHit = TraceFromEyeHeight(100.f,-20.f);
+	FHitResult SafetyLedgeHit = TraceFromEyeHeight(100.f,150.f);
 
 	if(HopUpHit.bBlockingHit && SafetyLedgeHit.bBlockingHit)
 	{	
 		OutHopUpTargetPosition = HopUpHit.ImpactPoint;
+
+		return true;
+	}
+
+	return false;
+}
+
+void UCustomMovementComponent::HandleHopDown()
+{
+	FVector HopDownTargetPoint;
+
+	if(CheckCanHopDown(HopDownTargetPoint))
+	{
+		SetMotionWarpTarget(FName("HopDownTargetPoint"),HopDownTargetPoint);
+
+		PlayClimbMontage(HopDownMontage);
+	}
+}
+
+bool UCustomMovementComponent::CheckCanHopDown(FVector& OutHopDownTargetPosition)
+{
+	FHitResult HopDownHit = TraceFromEyeHeight(100.f,-300.f, true, true);
+
+	if(HopDownHit.bBlockingHit)
+	{	
+		OutHopDownTargetPosition = HopDownHit.ImpactPoint;
 
 		return true;
 	}
@@ -538,21 +563,13 @@ void UCustomMovementComponent::RequestHopping()
 	
 	const float DotResult = FVector::DotProduct(UnrotatedLastInputVector.GetSafeNormal(), FVector::UpVector);
 	
-	Debug::Print(TEXT("Dot Result: ") + FString::SanitizeFloat(DotResult));
-	
 	if (DotResult >= 0.9f)
 	{
-		Debug::Print(TEXT("Hop Up"));
-		
 		HandleHopUp();
 	}
 	else if (DotResult <= -0.9f)
 	{
-		Debug::Print(TEXT("Hop Down"));
-	}
-	else
-	{
-		Debug::Print(TEXT("Invalid Input Range"));
+		HandleHopDown();
 	}
 }
 
